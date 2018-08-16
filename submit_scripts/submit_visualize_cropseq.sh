@@ -9,8 +9,8 @@
 #$ -l mem_free=20G                
 #$ -l arch=linux-x64             
 #$ -l netapp=5G,scratch=5G      
-#$ -l h_rt=15:00:00
-#$ -l gpu=1
+#$ -l h_rt=00:30:00
+##$ -l gpu=1
 ##$ -t 1-10                      
 
 # If you used the -t option above, this same script will be run for each task,
@@ -32,8 +32,8 @@ export LD_LIBRARY_PATH=$CUDA_PATH/lib64:$LD_LIBRARY_PATH
 export PATH=$PATH:/ye/yelabstore2/mincheol/cuda-8.0/bin
 
 source activate scvi
-python /netapp/home/mincheol/scVI-extensions/scripts/cropseq_scvi.py
+python /netapp/home/mincheol/scVI-extensions/scripts/visualize_cropseq.py
 source deactivate
 
-qstat -j $JOB_ID                                  # This is useful for debugging and usage purposes,
+#qstat -j $JOB_ID                                  # This is useful for debugging and usage purposes,
                                                   # e.g. "did my job exceed its memory request?"
