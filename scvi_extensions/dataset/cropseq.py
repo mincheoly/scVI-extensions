@@ -1,4 +1,4 @@
-from .dataset import GeneExpressionDataset
+from scvi.dataset import GeneExpressionDataset
 import numpy as np
 import pandas as pd
 import h5py
@@ -68,7 +68,7 @@ class CropseqDataset(GeneExpressionDataset):
         keep_cell_indices, guides, donor_batches = self.process_metadata(metadata, data, barcodes)
 
         print('Number of cells kept after filtering with metadata:', len(keep_cell_indices))
-
+        print(keep_cell_indices.max())
         # Filter the data matrix
         data = data[keep_cell_indices, :]
 
@@ -88,11 +88,14 @@ class CropseqDataset(GeneExpressionDataset):
         # Attach original row number to the metadata
         matrix_barcodes = pd.DataFrame()
         matrix_barcodes['index'] = barcodes
-        matrix_barcodes['row_number'] = matrix_barcodes.index.values
+        matrix_barcodes['row_number'] = np.arange(barcodes.shape[0])
         full_metadata = metadata.merge(matrix_barcodes, on='index', how='left')
 
-        # Apply some filtering criteria - but none for now.
-        keep_cells_metadata = full_metadata.copy()
+        # Apply some filtering criteria
+        keep_cells_metadata = full_metadata\
+            .query('guide_cov != "Undetermined"')\
+            .query('row_number < 300000 & row_number >= 0')\
+            .copy()
 
         # Clean up data
         keep_cells_metadata['guide_cov'] = keep_cells_metadata['guide_cov'].replace('0', 'no_guide')
