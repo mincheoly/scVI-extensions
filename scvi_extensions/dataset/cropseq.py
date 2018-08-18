@@ -40,7 +40,7 @@ class CropseqDataset(GeneExpressionDataset):
         self.use_donors = use_donors
         self.use_labels = use_labels
 
-        data, gene_names, guides, donor_batches = self.download_and_preprocess()
+        data, gene_names, guides, donor_batches = self.preprocess()
 
         super(CropseqDataset, self).__init__(
             *GeneExpressionDataset.get_attributes_from_matrix(
@@ -68,7 +68,7 @@ class CropseqDataset(GeneExpressionDataset):
         keep_cell_indices, guides, donor_batches = self.process_metadata(metadata, data, barcodes)
 
         print('Number of cells kept after filtering with metadata:', len(keep_cell_indices))
-        print(keep_cell_indices.max())
+
         # Filter the data matrix
         data = data[keep_cell_indices, :]
 
@@ -94,7 +94,6 @@ class CropseqDataset(GeneExpressionDataset):
         # Apply some filtering criteria
         keep_cells_metadata = full_metadata\
             .query('guide_cov != "Undetermined"')\
-            .query('row_number < 300000 & row_number >= 0')\
             .copy()
 
         # Clean up data

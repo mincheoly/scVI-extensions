@@ -29,8 +29,8 @@ if __name__ == '__main__':
 
 	print('loaded dataset!')
 
-	n_epochs=300
-	lr=1e-3
+	n_epochs=50
+	lr=1e-4
 	use_batches=True
 	use_cuda=True
 
@@ -41,14 +41,14 @@ if __name__ == '__main__':
 		train_size=0.9, 
 		use_cuda=use_cuda,
 		verbose=True,
-		frequency=5)
+		frequency=1)
 	infer.train(n_epochs=n_epochs, lr=lr)
 
 	# Save the model states
-	torch.save(vae.state_dict(), '/netapp/home/mincheol/vae_states_test.model_states')
+	#torch.save(vae.state_dict(), '/netapp/home/mincheol/vae_states_test.model_states')
 
 	# Save the model itself
-	torch.save(vae, '/netapp/home/mincheol/vae_model_test.model')
+	#torch.save(vae, '/netapp/home/mincheol/vae_model_test.model')
 
 	# Print history
 	ll_train = infer.history["ll_train"]
