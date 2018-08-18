@@ -1,39 +1,45 @@
 from scvi.dataset import DataLoaders
 
-class SupervisedDataLoaders(DataLoaders):
-    to_monitor = ['labelled', 'unlabelled']
+from torch.utils.data.sampler import SubsetRandomSampler, SequentialSampler, RandomSampler, WeightedRandomSampler
 
-    def __init__(self, gene_dataset, n_labelled_samples_per_class=50, seed=0, use_cuda=True, **kwargs):
-        """
-        :param n_labelled_samples_per_class: number of labelled samples per class
-        """
-        super(SemiSupervisedDataLoaders, self).__init__(gene_dataset, use_cuda=use_cuda, **kwargs)
 
-        n_labelled_samples_per_class_array = [n_labelled_samples_per_class] * gene_dataset.n_labels
-        labels = np.array(gene_dataset.labels).ravel()
+class SupervisedTrainTestDataLoaders(DataLoaders):
+    to_monitor = ['train', 'test']
+    loop = ['train']
+
+    def __init__(self, gene_dataset, train_size=0.1, test_size=None, seed=0, **kwargs):
+        """
+        :param train_size: float, int, or None (default is 0.1)
+        :param test_size: float, int, or None (default is None)
+        """
+        super(TrainTestDataLoaders, self).__init__(gene_dataset, **kwargs)
+
+        n = len(self.gene_dataset)
+        n_train, n_test = _validate_shuffle_split(n, test_size, train_size)
         np.random.seed(seed=seed)
-        permutation_idx = np.random.permutation(len(labels))
-        labels = labels[permutation_idx]
-        indices = []
-        current_nbrs = np.zeros(len(n_labelled_samples_per_class_array))
-        for idx, (label) in enumerate(labels):
-            label = int(label)
-            if current_nbrs[label] < n_labelled_samples_per_class_array[label]:
-                indices.insert(0, idx)
-                current_nbrs[label] += 1
-            else:
-                indices.append(idx)
-        indices = np.array(indices)
-        total_labelled = sum(n_labelled_samples_per_class_array)
-        indices_labelled = permutation_idx[indices[:total_labelled]]
-        indices_unlabelled = permutation_idx[indices[total_labelled:]]
+        permutation = np.random.permutation(n)
+        indices_test = permutation[:n_test]
+        indices_train = permutation[n_test:(n_test + n_train)]
 
-        data_loader_all = self(shuffle=True)
-        data_loader_labelled = self(indices=indices_labelled)
-        data_loader_unlabelled = self(indices=indices_unlabelled)
+        data_loader_train = self(indices=indices_train)
+        data_loader_test = self(indices=indices_test)
 
         self.dict.update({
-            'all': data_loader_all,
-            'labelled': data_loader_labelled,
-            'unlabelled': data_loader_unlabelled,
+            'train': data_loader_train,
+            'test': data_loader_test
         })
+
+    def __call__(self, shuffle=False, indices=None, weights=None):
+        if indices is not None and shuffle:
+            raise ValueError('indices is mutually exclusive with shuffle')
+        if indices is None:
+            if shuffle:
+                sampler = RandomSampler(self.gene_dataset)
+            else:
+                sampler = SequentialSampler(self.gene_dataset)
+        elif weighted and shuffle:
+            sampler = WeightedRandomSampler(weights, )
+        else:
+            sampler = SubsetRandomSampler(indices)
+        return DataLoaderWrapper(self.gene_dataset, use_cuda=self.use_cuda, sampler=sampler,
+                                 **self.kwargs)
