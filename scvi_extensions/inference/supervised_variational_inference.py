@@ -1,6 +1,7 @@
 import torch
+from torch.nn import functional as F
 
-from scvi.inference import SemiSupervisedVariationalInference
+from scvi.inference.variational_inference import SemiSupervisedVariationalInference
 from scvi_extensions.dataset.supervised_data_loader import SupervisedTrainTestDataLoaders
 
 class SupervisedVariationalInference(SemiSupervisedVariationalInference):
