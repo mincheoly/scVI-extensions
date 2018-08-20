@@ -46,10 +46,10 @@ if __name__ == '__main__':
 		frequency=1)
 	infer.train(n_epochs=n_epochs, lr=lr)
 
-	Save the model states
+	# Save the model states
 	torch.save(vae.state_dict(), '/netapp/home/mincheol/vaec_states_1.model_states')
 
-	Save the model itself
+	# Save the model itself
 	torch.save(vae, '/netapp/home/mincheol/vaec_model_1.model')
 
 	# Print history
