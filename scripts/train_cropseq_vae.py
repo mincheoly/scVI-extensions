@@ -43,7 +43,7 @@ if __name__ == '__main__':
 	n_epochs=1
 	lr=5e-5
 	use_batches=True
-	use_cuda=False
+	use_cuda=True
 
 	vaec = VAEC(gene_dataset.nb_genes, n_labels=gene_dataset.n_labels, n_batch=gene_dataset.n_batches * use_batches)
 	infer = SupervisedVariationalInference(
