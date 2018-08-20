@@ -32,7 +32,7 @@ export LD_LIBRARY_PATH=$CUDA_PATH/lib64:$LD_LIBRARY_PATH
 export PATH=$PATH:/ye/yelabstore2/mincheol/cuda-8.0/bin
 
 source activate scvi
-python /netapp/home/mincheol/scVI-extensions/scripts/train_cropseq_vae.py
+python train_cropseq_vae.py --data /netapp/home/mincheol/raw_gene_bc_matrices_h5.h5 --metadata /netapp/home/mincheol/nsnp20.raw.sng.km_vb1.norm.meta.txt --output /netapp/home/mincheol/vaec_model_1
 source deactivate
 
 qstat -j $JOB_ID                                  # This is useful for debugging and usage purposes,
