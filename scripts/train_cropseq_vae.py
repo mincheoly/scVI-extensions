@@ -6,21 +6,30 @@ import numpy as np
 import seaborn as sns
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
-from scvi.dataset import CortexDataset, RetinaDataset, CropseqDataset
+import argparse
+
 from scvi.metrics.clustering import entropy_batch_mixing, get_latent
 from scvi.metrics.differential_expression import de_stats
 from scvi.metrics.imputation import imputation
 from scvi.models import VAE, SVAEC, VAEC
 from scvi.inference import VariationalInference
 
-from scvi_extensions import SupervisedVariationalInference
+from scvi_extensions.dataset.cropseq import CropseqDataset
+from scvi_extensions.inference.supervised_variational_inference import SupervisedVariationalInference
 
 import torch
 
 if __name__ == '__main__':
 
-	h5_filename = '/netapp/home/mincheol/raw_gene_bc_matrices_h5.h5'
-	metadata_filename = '/ye/yelabstore2/dosageTF/tfko_140/combined/nsnp20.raw.sng.km_vb1.norm.meta.txt'
+	# Argparse
+	parser = argparse.ArgumentParser(description='Training a VAE(C)')
+	parser.add_argument('--data', type=str, metavar='D', help='path to the h5 data file')
+	parser.add_argument('--metadata', type=str,metavar='E', help='path to the tab separated metadata file')
+	parser.add_argument('--output', type=str, metavar='O', help='output model name')
+	args = parser.parse_args()
+
+	h5_filename = args.data
+	metadata_filename = args.metadata
 
 	gene_dataset = CropseqDataset(
 		filename=h5_filename,
@@ -47,10 +56,10 @@ if __name__ == '__main__':
 	infer.train(n_epochs=n_epochs, lr=lr)
 
 	# Save the model states
-	torch.save(vae.state_dict(), '/netapp/home/mincheol/vaec_states_1.model_states')
+	torch.save(vae.state_dict(), args.output + '.model_states')
 
 	# Save the model itself
-	torch.save(vae, '/netapp/home/mincheol/vaec_model_1.model')
+	torch.save(vae, args.output + '.model')
 
 	# Print history
 	ll_train = infer.history["ll_train"]
