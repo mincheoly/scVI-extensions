@@ -40,12 +40,12 @@ if __name__ == '__main__':
 
 	print('loaded dataset!')
 
-	n_epochs=100
+	n_epochs=1
 	lr=5e-5
 	use_batches=True
-	use_cuda=True
+	use_cuda=False
 
-	vaec = VAEC(gene_dataset.nb_genes, n_batch=gene_dataset.n_batches * use_batches)
+	vaec = VAEC(gene_dataset.nb_genes, n_labels=gene_dataset.n_labels, n_batch=gene_dataset.n_batches * use_batches)
 	infer = SupervisedVariationalInference(
 		vaec, 
 		gene_dataset, 
