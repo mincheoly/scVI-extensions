@@ -9,7 +9,7 @@ class SupervisedTrainTestDataLoaders(DataLoaders):
     to_monitor = ['train', 'test']
     loop = ['train']
 
-    def __init__(self, gene_dataset, train_size=0.1, test_size=None, seed=0, **kwargs):
+    def __init__(self, gene_dataset, train_size=0.1, test_size=None, seed=0, num_samples=None, **kwargs):
         """
         :param train_size: float, int, or None (default is 0.1)
         :param test_size: float, int, or None (default is None)
@@ -29,6 +29,9 @@ class SupervisedTrainTestDataLoaders(DataLoaders):
         unique_labels, label_counts = np.unique(gene_dataset.labels[:, 0], return_counts=True)
         self.weight_lookup = 1.0/label_counts * 1.0/len(unique_labels)
 
+        # Set the number of samples in the iterator
+        self.num_samples = num_samples if num_samples else len(gene_dataset)
+
         # Create weights
         weights_all = np.zeros(len(gene_dataset))
         weights_train = np.zeros(len(gene_dataset))
@@ -40,9 +43,9 @@ class SupervisedTrainTestDataLoaders(DataLoaders):
         for idx in range(len(gene_dataset)):
             weights_all[idx] = self.weight_lookup[gene_dataset.labels[idx, 0]]
 
-        data_loader_train = self(weights=weights_train)
-        data_loader_test = self(weights=weights_test)
-        data_loader_all = self(weights=weights_all)
+        data_loader_train = self(weights=weights_train, num_samples=n_train)
+        data_loader_test = self(weights=weights_test,  num_samples=n_test)
+        data_loader_all = self(weights=weights_all, num_samples=self.num_samples)
 
         self.dict.update({
             'train': data_loader_train,
@@ -50,14 +53,16 @@ class SupervisedTrainTestDataLoaders(DataLoaders):
             'all': data_loader_all
         })
 
-    def __call__(self, shuffle=False, indices=None, weights=None):
+    def __call__(self, shuffle=False, indices=None, weights=None, num_samples=None):
         if indices is not None and shuffle:
             raise ValueError('indices is mutually exclusive with shuffle')
         if indices is None:
             if shuffle:
                 sampler = RandomSampler(self.gene_dataset)
             elif weights is not None:
-                sampler = WeightedRandomSampler(weights, num_samples=len(self.gene_dataset))
+                if num_samples is None:
+                    raise ValueError('num_samples should be set when using WeightedRandomSampler')
+                sampler = WeightedRandomSampler(weights, num_samples=num_samples)
             else:
                 sampler = SequentialSampler(self.gene_dataset)
         else:

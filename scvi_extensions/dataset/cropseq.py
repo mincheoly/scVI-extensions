@@ -10,10 +10,13 @@ class CropseqDataset(GeneExpressionDataset):
 
     Args:
         :filename: Name of the `.h5` file.
+        :metadata_filename: Name of the tab separated metadata file.
         :save_path: Save path of the dataset. Default: ``'data/'``.
         :url: Url of the remote dataset. Default: ``None``.
         :new_n_genes: Number of subsampled genes. Default: ``False``.
         :subset_genes: List of genes for subsampling. Default: ``None``.
+        :use_donors: Whether to use donors as batches. Default: ``False``.
+        :use_labels: Whether to use guides as labels. Default: ``False``.
 
 
     Examples:
@@ -42,13 +45,17 @@ class CropseqDataset(GeneExpressionDataset):
 
         data, gene_names, guides, donor_batches = self.preprocess()
 
+        self.guide_lookup = np.unique(guides)
+        self.ko_gene_lookup = np.array([x.split('.')[0] for x in self.guide_lookup], dtype=str)
+        
         super(CropseqDataset, self).__init__(
             *GeneExpressionDataset.get_attributes_from_matrix(
                 data, 
                 batch_indices=donor_batches if self.use_donors else 0, 
                 labels=guides if self.use_labels else None),
-                gene_names=gene_names)
-
+                gene_names=gene_names,
+                cell_types=self.guide_lookup)
+        
         self.subsample_genes(new_n_genes=new_n_genes, subset_genes=subset_genes)
 
 
@@ -97,7 +104,7 @@ class CropseqDataset(GeneExpressionDataset):
             .copy()
 
         # Clean up data
-        keep_cells_metadata['guide_cov'] = keep_cells_metadata['guide_cov'].replace('0', 'no_guide')
+        keep_cells_metadata['guide_cov'] = keep_cells_metadata['guide_cov'].replace('0', 'NO_GUIDE')
         guides = keep_cells_metadata['guide_cov'].values.reshape(-1, 1)
 
         # Assign codes to each donor
