@@ -40,8 +40,8 @@ if __name__ == '__main__':
 
 	print('loaded dataset!')
 
-	n_epochs=1
-	lr=5e-5
+	n_epochs=30
+	lr=5e-4
 	use_batches=True
 	use_cuda=True
 

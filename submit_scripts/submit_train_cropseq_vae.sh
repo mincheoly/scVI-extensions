@@ -6,7 +6,7 @@
 #$ -cwd                          
 #$ -r y                          
 #$ -j y                          
-#$ -l mem_free=20G                
+#$ -l mem_free=50G                
 #$ -l arch=linux-x64             
 #$ -l netapp=5G,scratch=5G      
 #$ -l h_rt=15:00:00
@@ -32,7 +32,7 @@ export LD_LIBRARY_PATH=$CUDA_PATH/lib64:$LD_LIBRARY_PATH
 export PATH=$PATH:/ye/yelabstore2/mincheol/cuda-8.0/bin
 
 source activate scvi
-python train_cropseq_vae.py --data /netapp/home/mincheol/raw_gene_bc_matrices_h5.h5 --metadata /netapp/home/mincheol/nsnp20.raw.sng.km_vb1.norm.meta.txt --output /netapp/home/mincheol/vaec_model_1
+python /netapp/home/mincheol/scVI-extensions/scripts/train_cropseq_vae.py --data /netapp/home/mincheol/raw_gene_bc_matrices_h5.h5 --metadata /netapp/home/mincheol/nsnp20.raw.sng.km_vb1.norm.meta.txt --output /netapp/home/mincheol/vaec_model_1
 source deactivate
 
 qstat -j $JOB_ID                                  # This is useful for debugging and usage purposes,

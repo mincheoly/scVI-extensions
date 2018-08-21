@@ -27,7 +27,7 @@ class SupervisedVariationalInference(SemiSupervisedVariationalInference):
         self.classification_ratio = classification_ratio
 
     def loss(self, tensors):
-        loss = super(JointSemiSupervisedVariationalInference, self).loss(tensors)
+        loss = super(SupervisedVariationalInference, self).loss(tensors)
         sample_batch, _, _, _, y = tensors
         classification_loss = F.cross_entropy(self.model.classify(sample_batch), y.view(-1))
         loss += classification_loss * self.classification_ratio
