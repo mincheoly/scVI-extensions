@@ -6,11 +6,11 @@
 #$ -cwd                          
 #$ -r y                          
 #$ -j y                          
-#$ -l mem_free=30G                
+#$ -l mem_free=100G
 #$ -l arch=linux-x64             
 #$ -l netapp=5G,scratch=5G      
 #$ -l h_rt=15:00:00
-#$ -l gpu=2
+##$ -l gpu=2
 ##$ -t 1-10                      
 
 # If you used the -t option above, this same script will be run for each task,

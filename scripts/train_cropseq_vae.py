@@ -46,7 +46,7 @@ if __name__ == '__main__':
 	use_cuda=True
 
 	#vae = VAEC(gene_dataset.nb_genes, n_labels=gene_dataset.n_labels, n_batch=gene_dataset.n_batches * use_batches)
-	vae - VAE(gene_dataset.nb_genes, n_batch=gene_dataset.n_batches * use_batches)
+	vae = VAE(gene_dataset.nb_genes, n_batch=gene_dataset.n_batches * use_batches)
 	infer = SupervisedVariationalInference(
 		vae, 
 		gene_dataset, 
