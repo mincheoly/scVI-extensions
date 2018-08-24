@@ -27,8 +27,10 @@ class SupervisedVariationalInference(SemiSupervisedVariationalInference):
         self.classification_ratio = classification_ratio
 
     def loss(self, tensors):
-        loss = super(SupervisedVariationalInference, self).loss(tensors)
-        sample_batch, _, _, _, y = tensors
+        sample_batch, local_l_mean, local_l_var, batch_index, y = tensors
+        reconst_loss, kl_divergence = self.model(sample_batch, local_l_mean, local_l_var, batch_index, y)
+        loss = torch.mean(reconst_loss + self.kl_weight * kl_divergence)
         classification_loss = F.cross_entropy(self.model.classify(sample_batch), y.view(-1))
         loss += classification_loss * self.classification_ratio
+        print('Calculated supervised loss')
         return loss

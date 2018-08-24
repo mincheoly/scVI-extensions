@@ -40,13 +40,12 @@ if __name__ == '__main__':
 
 	print('loaded dataset!')
 
-	n_epochs=30
+	n_epochs=10
 	lr=5e-4
 	use_batches=True
 	use_cuda=True
 
-	#vae = VAEC(gene_dataset.nb_genes, n_labels=gene_dataset.n_labels, n_batch=gene_dataset.n_batches * use_batches)
-	vae = VAE(gene_dataset.nb_genes, n_batch=gene_dataset.n_batches * use_batches)
+	vae = VAEC(gene_dataset.nb_genes, n_labels=gene_dataset.n_labels, n_batch=gene_dataset.n_batches * use_batches)
 	infer = SupervisedVariationalInference(
 		vae, 
 		gene_dataset, 
@@ -55,6 +54,16 @@ if __name__ == '__main__':
 		verbose=True,
 		frequency=1)
 	infer.train(n_epochs=n_epochs, lr=lr)
+		
+	# vae = VAE(gene_dataset.nb_genes, n_batch=gene_dataset.n_batches * use_batches)
+	# infer = VariationalInference(
+	# 	vae, 
+	# 	gene_dataset, 
+	# 	train_size=0.9, 
+	# 	use_cuda=use_cuda,
+	# 	verbose=True,
+	# 	frequency=1)
+	# infer.train(n_epochs=n_epochs, lr=lr)
 
 	# Save the model states
 	torch.save(vae.state_dict(), args.output + '.model_states')
