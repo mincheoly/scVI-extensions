@@ -40,10 +40,12 @@ if __name__ == '__main__':
 
 	print('loaded dataset!')
 
-	n_epochs=10
+	n_epochs=200
 	lr=5e-4
 	use_batches=True
 	use_cuda=True
+
+	print('Using learning rate', lr)
 
 	vae = VAEC(gene_dataset.nb_genes, n_labels=gene_dataset.n_labels, n_batch=gene_dataset.n_batches * use_batches)
 	infer = SupervisedVariationalInference(
