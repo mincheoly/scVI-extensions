@@ -32,5 +32,4 @@ class SupervisedVariationalInference(SemiSupervisedVariationalInference):
         loss = torch.mean(reconst_loss + self.kl_weight * kl_divergence)
         classification_loss = F.cross_entropy(self.model.classify(sample_batch), y.view(-1))
         loss += classification_loss * self.classification_ratio
-        print('Calculated supervised loss')
         return loss
