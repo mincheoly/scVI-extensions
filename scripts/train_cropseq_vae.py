@@ -36,6 +36,7 @@ if __name__ == '__main__':
 		metadata_filename=metadata_filename,
 		use_donors=True,
 		use_labels=True,
+		new_n_genes=1000,
 		save_path='')
 
 	print('loaded dataset!')
