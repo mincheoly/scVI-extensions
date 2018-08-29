@@ -56,16 +56,6 @@ if __name__ == '__main__':
 		verbose=True,
 		frequency=1)
 	infer.train(n_epochs=n_epochs, lr=lr)
-		
-	# vae = VAE(gene_dataset.nb_genes, n_batch=gene_dataset.n_batches * use_batches)
-	# infer = VariationalInference(
-	# 	vae, 
-	# 	gene_dataset, 
-	# 	train_size=0.9, 
-	# 	use_cuda=use_cuda,
-	# 	verbose=True,
-	# 	frequency=1)
-	# infer.train(n_epochs=n_epochs, lr=lr)
 
 	# Save the model states
 	torch.save(vae.state_dict(), args.output + '.model_states')
