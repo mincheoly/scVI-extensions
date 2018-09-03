@@ -10,7 +10,7 @@
 #$ -l arch=linux-x64             
 #$ -l netapp=5G,scratch=5G      
 #$ -l h_rt=10:00:00
-#$ -l gpu=1
+##$ -l gpu=1
 ##$ -t 1-10                      
 
 # If you used the -t option above, this same script will be run for each task,
