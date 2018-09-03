@@ -16,8 +16,7 @@ from scvi.models import VAE, SVAEC, VAEC
 from scvi.inference import VariationalInference
 
 from scvi_extensions.dataset.cropseq import CropseqDataset
-from scvi_extensions.inference.supervised_variational_inference import SupervisedVariationalInference
-
+from scvi_extensions.hypothesis_testing.mean import differential_expression
 import torch
 
 
@@ -38,21 +37,23 @@ class ForceIOStream:
 sys.stdout = ForceIOStream(sys.stdout)
 sys.stderr = ForceIOStream(sys.stderr)
 
+
 if __name__ == '__main__':
 
 	# Argparse
-	parser = argparse.ArgumentParser(description='Training a VAE(C)')
-	parser.add_argument('--model', type=str, metavar='M', help='vaec for classifier, vae for vanilla')
+	parser = argparse.ArgumentParser(description='Performing differential expression')
+	parser.add_argument('--model_path', type=str, metavar='M', help='path to a trained torch model')
 	parser.add_argument('--label', type=str, metavar='L', help='what to use as label, one of: gene, louvain, guide')
 	parser.add_argument('--n_genes', type=int, metavar='N', help='how many genes to keep, based on variance.')
 	parser.add_argument('--data', type=str, metavar='D', help='path to the h5 data file')
 	parser.add_argument('--metadata', type=str,metavar='E', help='path to the tab separated metadata file')
-	parser.add_argument('--output', type=str, metavar='O', help='output model name')
+	parser.add_argument('--desired_labels', type=str, help='List of desired labels')
+	parser.add_argument('--output', type=str, metavar='O', help='where the output files should go')
 	args = parser.parse_args()
 
+	# # Create a dataset
 	h5_filename = args.data
 	metadata_filename = args.metadata
-
 	gene_dataset = CropseqDataset(
 		filename=h5_filename,
 		metadata_filename=metadata_filename,
@@ -61,37 +62,26 @@ if __name__ == '__main__':
 		new_n_genes=args.n_genes,
 		save_path='')
 
-	print('loaded dataset!')
+	# Parse the desired labels
+	named_desired_labels = [x.strip("'") for x in args.desired_labels[1:-1].split(', ')]
+	if args.label == 'louvain':
+		desired_labels = [int(x) for x in named_desired_labels]
+	elif args.label == 'guide':
+		desired_labels = [np.where(gene_dataset.guide_lookup == guide)[0][0] for guide in named_desired_labels]
+	elif args.label == 'gene':
+		desired_labels = [np.where(gene_dataset.ko_gene_lookup == gene)[0][0] for gene in named_desired_labels]
+	else:
+		raise AssertionError('labels must be one of: gene, guide, or louvain.')
+	label_lookup = dict(zip(desired_labels, named_desired_labels))
 
-	n_epochs=200
-	lr=5e-4
-	use_batches=True
-	use_cuda=True
+	# Read the model
+	model = torch.load(args.model_path, map_location=lambda storage, loc: storage)
 
-	print('Using learning rate', lr)
+	# Perform DE
+	de_results = differential_expression(model, gene_dataset, desired_labels, 100, 10000)
 
-	vae = VAEC(gene_dataset.nb_genes, n_labels=gene_dataset.n_labels, n_batch=gene_dataset.n_batches * use_batches)
-	infer = SupervisedVariationalInference(
-		vae, 
-		gene_dataset, 
-		train_size=0.9, 
-		use_cuda=use_cuda,
-		verbose=True,
-		frequency=1)
-	infer.train(n_epochs=n_epochs, lr=lr)
-
-	# Save the model states
-	torch.save(vae.state_dict(), args.output + '.model_states')
-
-	# Save the model itself
-	torch.save(vae, args.output + '.model')
-
-	# Print history
-	ll_train = infer.history["ll_train"]
-	ll_test = infer.history["ll_test"]
-
-	print(list(ll_train))
-	print('---')
-	print(list(ll_test))
-
-	print('finished training!')
+	# Save the results
+	for label_1, results in de_results.items():
+		for label_2, df in results.items():
+			print('Performing DE between {} and {}.'.format(label_lookup[label_1], label_lookup[label_2]))
+			df.to_csv(args.output + '/de_result_{}_{}.csv'.format(label_lookup[label_1], label_lookup[label_2]), index=False)

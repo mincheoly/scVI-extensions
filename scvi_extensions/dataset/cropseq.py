@@ -46,7 +46,7 @@ class CropseqDataset(GeneExpressionDataset):
         data, gene_names, guides, donor_batches, louvain, ko_gene = self.preprocess()
 
         self.guide_lookup = np.unique(guides)
-        self.ko_gene_lookup = np.array([x.split('.')[0] for x in self.guide_lookup], dtype=str)
+        self.ko_gene_lookup = np.unique(ko_gene)
         self.guides = guides
         self.louvain = louvain
         self.ko_gene = ko_gene

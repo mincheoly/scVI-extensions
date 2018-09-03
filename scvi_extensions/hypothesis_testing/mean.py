@@ -138,7 +138,7 @@ def differential_expression(model, dataset, desired_labels, M_sampling, M_permut
     data_loader = LabelDataLoaders(
         gene_dataset=dataset, 
         desired_labels=desired_labels,
-        num_samples=5000)
+        num_samples=None)
 
     px_scale, all_labels = expression_stats(
         model, 
