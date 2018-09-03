@@ -129,7 +129,7 @@ class CropseqDataset(GeneExpressionDataset):
         louvain = keep_cells_metadata['louvain'].values.reshape(-1, 1)
 
         # Extract the gene being knocked out
-        ko_gene = keep_cells_metadata['guide_cov'].str.extract(r'(.*)\.')
+        ko_gene = keep_cells_metadata['guide_cov'].str.extract(r'^([^.]*).*').values.reshape(-1, 1)
 
         # Assign codes to each donor
         donor_labels = keep_cells_metadata['donor_cov'].values
