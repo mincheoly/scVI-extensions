@@ -34,7 +34,7 @@ class CropseqDataset(GeneExpressionDataset):
             new_n_genes=False, 
             subset_genes=None, 
             use_donors=False, 
-            use_labels=False):
+            use_labels='guide'):
 
         self.download_name = filename
         self.metadata_filename = metadata_filename
@@ -43,18 +43,34 @@ class CropseqDataset(GeneExpressionDataset):
         self.use_donors = use_donors
         self.use_labels = use_labels
 
-        data, gene_names, guides, donor_batches = self.preprocess()
+        data, gene_names, guides, donor_batches, louvain, ko_gene = self.preprocess()
 
         self.guide_lookup = np.unique(guides)
         self.ko_gene_lookup = np.array([x.split('.')[0] for x in self.guide_lookup], dtype=str)
+        self.guides = guides
+        self.louvain = louvain
+        self.ko_gene = ko_gene
+        self.donor_batches = donor_batches
+
+        if not self.use_labels:
+            labels = None
+        elif self.use_labels == 'guide':
+            labels = guides
+        elif self.use_labels == 'louvain':
+            labels = louvain
+        elif self.use_labels == 'gene':
+            labels = ko_gene
+        else:
+            labels = None
+
         
         super(CropseqDataset, self).__init__(
             *GeneExpressionDataset.get_attributes_from_matrix(
                 data, 
                 batch_indices=donor_batches if self.use_donors else 0, 
-                labels=guides if self.use_labels else None),
+                labels=labels),
                 gene_names=gene_names,
-                cell_types=self.guide_lookup)
+                cell_types=np.unique(labels))
         
         self.subsample_genes(new_n_genes=new_n_genes, subset_genes=subset_genes)
 
@@ -72,7 +88,7 @@ class CropseqDataset(GeneExpressionDataset):
 
         # Get labels and wells from metadata
         metadata = pd.read_csv(self.metadata_filename, sep='\t')
-        keep_cell_indices, guides, donor_batches = self.process_metadata(metadata, data, barcodes)
+        keep_cell_indices, guides, donor_batches, louvain, ko_gene = self.process_metadata(metadata, data, barcodes)
 
         print('Number of cells kept after filtering with metadata:', len(keep_cell_indices))
 
@@ -84,10 +100,12 @@ class CropseqDataset(GeneExpressionDataset):
         data = data[has_umis, :]
         guides = guides[has_umis]
         donor_batches = donor_batches[has_umis]
+        louvain = louvain[has_umis]
+        ko_gene = ko_gene[has_umis]
         print('Number of cells kept after removing all zero cells:', has_umis.sum())
 
         print("Finished preprocessing CROP-seq dataset")
-        return data, gene_names, guides, donor_batches
+        return data, gene_names, guides, donor_batches, louvain, ko_gene
 
 
     def process_metadata(self, metadata, data, barcodes):
@@ -107,6 +125,12 @@ class CropseqDataset(GeneExpressionDataset):
         keep_cells_metadata['guide_cov'] = keep_cells_metadata['guide_cov'].replace('0', 'NO_GUIDE')
         guides = keep_cells_metadata['guide_cov'].values.reshape(-1, 1)
 
+        # Extract louvain cluster
+        louvain = keep_cells_metadata['louvain'].values.reshape(-1, 1)
+
+        # Extract the gene being knocked out
+        ko_gene = keep_cells_metadata['guide_cov'].str.extract(r'(.*)\.')
+
         # Assign codes to each donor
         donor_labels = keep_cells_metadata['donor_cov'].values
         unique_donors = np.unique(donor_labels)
@@ -116,7 +140,7 @@ class CropseqDataset(GeneExpressionDataset):
             donor_batches[i] = self.donor_lookup[donor_labels[i]]
         donor_batches = donor_batches.reshape(-1, 1)
 
-        return keep_cells_metadata['row_number'].values, guides, donor_batches
+        return keep_cells_metadata['row_number'].values, guides, donor_batches, louvain, ko_gene
 
 
     def read_h5_file(self, key=None):

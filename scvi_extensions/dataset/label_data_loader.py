@@ -9,7 +9,7 @@ class LabelDataLoaders(DataLoaders):
     to_monitor = []
     loop = ['all']
 
-    def __init__(self, gene_dataset, desired_labels, **kwargs):
+    def __init__(self, gene_dataset, desired_labels, num_samples=None, **kwargs):
         """
         :param train_size: float, int, or None (default is 0.1)
         :param test_size: float, int, or None (default is None)
@@ -30,10 +30,10 @@ class LabelDataLoaders(DataLoaders):
             total_cell_count += len(label_indices)
             weights[label_indices] = label_weight
 
-        data_loader = self(weights=weights_train, num_samples=total_cell_count)
+        data_loader = self(weights=weights, num_samples=total_cell_count if not num_samples else num_samples)
 
         self.dict.update({
-            'all': data_loader_all
+            'all': data_loader
         })
 
     def __call__(self, shuffle=False, indices=None, weights=None, num_samples=None):

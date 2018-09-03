@@ -35,7 +35,7 @@ if __name__ == '__main__':
 		filename=h5_filename,
 		metadata_filename=metadata_filename,
 		use_donors=True,
-		use_labels=True,
+		use_labels='louvain',
 		new_n_genes=1000,
 		save_path='')
 
