@@ -49,6 +49,7 @@ if __name__ == '__main__':
 	parser.add_argument('--metadata', type=str,metavar='E', help='path to the tab separated metadata file')
 	parser.add_argument('--desired_labels', type=str, help='List of desired labels')
 	parser.add_argument('--output', type=str, metavar='O', help='where the output files should go')
+	parser.add_argument('--gpu', metavar='G', help='using a GPU?', action='store_true')
 	args = parser.parse_args()
 
 	# # Create a dataset
@@ -75,7 +76,10 @@ if __name__ == '__main__':
 	label_lookup = dict(zip(desired_labels, named_desired_labels))
 
 	# Read the model
-	model = torch.load(args.model_path, map_location=lambda storage, loc: storage)
+	if args.gpu:
+		model = torch.load(args.model_path)
+	else:
+		model = torch.load(args.model_path, map_location=lambda storage, loc: storage)
 
 	# Perform DE
 	de_results = differential_expression(model, gene_dataset, desired_labels, 100, 10000)
