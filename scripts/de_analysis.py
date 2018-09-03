@@ -49,7 +49,7 @@ if __name__ == '__main__':
 	parser.add_argument('--metadata', type=str,metavar='E', help='path to the tab separated metadata file')
 	parser.add_argument('--desired_labels', type=str, help='List of desired labels')
 	parser.add_argument('--output', type=str, metavar='O', help='where the output files should go')
-	parser.add_argument('--gpu', metavar='G', help='using a GPU?', action='store_true')
+	parser.add_argument('--gpu', help='using a GPU?', action='store_true')
 	args = parser.parse_args()
 
 	# # Create a dataset
