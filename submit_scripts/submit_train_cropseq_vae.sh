@@ -9,7 +9,7 @@
 #$ -l mem_free=20G
 #$ -l arch=linux-x64             
 #$ -l netapp=5G,scratch=5G      
-#$ -l h_rt=10:00:00
+#$ -l h_rt=15:00:00
 #$ -l gpu=1
 ##$ -t 1-10                      
 
@@ -32,25 +32,10 @@ export LD_LIBRARY_PATH=$CUDA_PATH/lib64:$LD_LIBRARY_PATH
 export PATH=$PATH:/ye/yelabstore2/mincheol/cuda-8.0/bin
 
 source activate scvi
-
-python de_analysis.py \
-	--model_path=/netapp/home/mincheol/vaec_model_vargenes.model \
-	--label louvain \
-	--n_genes 1000 \
+python /netapp/home/mincheol/scVI-extensions/scripts/train_cropseq_vae.py \
 	--data /netapp/home/mincheol/raw_gene_bc_matrices_h5.h5 \
 	--metadata /netapp/home/mincheol/nsnp20.raw.sng.km_vb1.norm.meta.txt \
-	--desired_labels "[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]" \
-	--output /ye/yelabstore2/mincheol/outputs/scvi/guide_model_de
-
-python de_analysis.py \
-	--model_path=/netapp/home/mincheol/vaec_model_vargenes_louvain.model \
-	--label louvain \
-	--n_genes 1000 \
-	--data /netapp/home/mincheol/raw_gene_bc_matrices_h5.h5 \
-	--metadata /netapp/home/mincheol/nsnp20.raw.sng.km_vb1.norm.meta.txt \
-	--desired_labels "[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]" \
-	--output /ye/yelabstore2/mincheol/outputs/scvi/guide_model_de
-
+	--output /netapp/home/mincheol/vaec_model_vargenes_louvain
 source deactivate
 
 qstat -j $JOB_ID                                  # This is useful for debugging and usage purposes,
