@@ -17,6 +17,7 @@ from scvi.inference import VariationalInference
 
 from scvi_extensions.dataset.cropseq import CropseqDataset
 from scvi_extensions.hypothesis_testing.mean import differential_expression
+from scvi_extensions.hypothesis_testing.variance import gene_variance_test
 import torch
 
 
@@ -81,11 +82,11 @@ if __name__ == '__main__':
 	else:
 		model = torch.load(args.model_path, map_location=lambda storage, loc: storage)
 
-	# Perform DE
+	# Perform hypothesis testing
 	de_results = differential_expression(model, gene_dataset, desired_labels, 100, 10000)
+	variance_results = gene_variance_test(model, gene_dataset, desired_labels, 100, 10000)
 
 	# Save the results
-	for label_1, results in de_results.items():
-		for label_2, df in results.items():
-			print('Performing DE between {} and {}.'.format(label_lookup[label_1], label_lookup[label_2]))
-			df.to_csv(args.output + '/de_result_{}_{}.csv'.format(label_lookup[label_1], label_lookup[label_2]), index=False)
+	for label_1, label_2 in itertools.combinations(desired_labels, 2):
+		de_results[label_1][label_2].to_csv(args.output + '/de_result_{}_{}.csv'.format(label_lookup[label_1], label_lookup[label_2]), index=False)
+		variance_results[label_1][label_2].to_csv(args.output + '/variance_result_{}_{}.csv'.format(label_lookup[label_1], label_lookup[label_2]), index=False)
