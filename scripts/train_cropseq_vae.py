@@ -70,7 +70,11 @@ if __name__ == '__main__':
 
 	print('Using learning rate', lr)
 
-	vae = VAEC(gene_dataset.nb_genes, n_labels=gene_dataset.n_labels, n_batch=gene_dataset.n_batches * use_batches)
+	if args.model == 'vae':
+		vae = VAE(gene_dataset.nb_genes, n_batch=gene_dataset.n_batches * use_batches)
+	else:
+		vae = VAEC(gene_dataset.nb_genes, n_labels=gene_dataset.n_labels, n_batch=gene_dataset.n_batches * use_batches)
+
 	infer = SupervisedVariationalInference(
 		vae, 
 		gene_dataset, 
