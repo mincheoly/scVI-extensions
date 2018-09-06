@@ -16,12 +16,14 @@ def gene_variance_test(model, dataset, desired_labels, M_sampling, M_permutation
         desired_labels=desired_labels,
         num_samples=10000)
 
+    print('Sampling for variance testing...')
     px_scale, all_labels = expression_stats(
         model, 
         data_loader['all'], 
         M_sampling=M_sampling)
+    print('Done sampling for variance testing...')
 
-    variances = (px_scale.reshape(-1, M_sampling, px.shape[-1])*1e6).var(axis=1)
+    variances = (px_scale.reshape(-1, M_sampling, px_scale.shape[-1])*1e6).var(axis=1)
     labels = all_labels.reshape(-1, M_sampling).mean(axis=1)
 
     # Generate the null distribution
