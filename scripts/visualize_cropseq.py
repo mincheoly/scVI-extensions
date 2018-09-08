@@ -28,6 +28,7 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description='Visulaizing the latent space of scVI')
 	parser.add_argument('--model', type=str, metavar='M', help='path to the model to be used')
 	parser.add_argument('--data', type=str, metavar='D', help='path to the h5 data file')
+	parser.add_argument('--label', type=str, help='labels to use for coloring')
 	parser.add_argument('--metadata', type=str,metavar='E', help='path to the tab separated metadata file')
 	parser.add_argument('--output', type=str, metavar='O', help='output file name')
 	args = parser.parse_args()

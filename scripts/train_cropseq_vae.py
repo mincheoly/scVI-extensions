@@ -63,8 +63,8 @@ if __name__ == '__main__':
 
 	print('loaded dataset!')
 
-	n_epochs=200
-	lr=5e-4
+	n_epochs=500
+	lr=1e-4
 	use_batches=True
 	use_cuda=True
 
@@ -83,9 +83,6 @@ if __name__ == '__main__':
 		verbose=True,
 		frequency=1)
 	infer.train(n_epochs=n_epochs, lr=lr)
-
-	# Save the model states
-	torch.save(vae.state_dict(), args.output + '.model_states')
 
 	# Save the model itself
 	torch.save(vae, args.output + '.model')

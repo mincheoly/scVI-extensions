@@ -45,6 +45,7 @@ if __name__ == '__main__':
 	# Argparse
 	parser = argparse.ArgumentParser(description='Performing differential expression')
 	parser.add_argument('--model_path', type=str, metavar='M', help='path to a trained torch model')
+	parser.add_argument('--model_label', type=str, help='the labels with which the model was trained on, one of: gene, louvain, or guide')
 	parser.add_argument('--label', type=str, metavar='L', help='what to use as label, one of: gene, louvain, guide')
 	parser.add_argument('--n_genes', type=int, metavar='N', help='how many genes to keep, based on variance.')
 	parser.add_argument('--data', type=str, metavar='D', help='path to the h5 data file')
@@ -61,8 +62,9 @@ if __name__ == '__main__':
 		filename=h5_filename,
 		metadata_filename=metadata_filename,
 		use_donors=True,
-		use_labels=args.label,
+		use_labels=args.model_label,
 		new_n_genes=args.n_genes,
+		testing_labels=args.label,
 		save_path='')
 
 	# Parse the desired labels

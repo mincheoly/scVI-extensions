@@ -51,9 +51,9 @@ def expression_stats(vae, data_loader, M_sampling=100):
     px_scales = []
     all_labels = []
     cell_count = 0
-    for sample_batch, _, _, batch_index, labels in data_loader:
+    for sample_batch, _, _, batch_index, labels , testing_labels in data_loader:
         px_scales += [sample_scale(vae, sample_batch, batch_index, labels, M_sampling)]
-        all_labels += [labels.repeat(1, M_sampling).view(-1, 1).cpu()]
+        all_labels += [testing_labels.repeat(1, M_sampling).view(-1, 1).cpu()]
     px_scale = torch.cat(px_scales).data.numpy()
     all_labels = torch.cat(all_labels).data.numpy().reshape(-1)
     

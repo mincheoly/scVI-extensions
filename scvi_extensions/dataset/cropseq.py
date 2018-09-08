@@ -1,7 +1,9 @@
 from scvi.dataset import GeneExpressionDataset
+from scvi.dataset.dataset import arrange_categories
 import numpy as np
 import pandas as pd
 import h5py
+import torch
 import scipy.sparse as sp_sparse
 
 
@@ -34,7 +36,9 @@ class CropseqDataset(GeneExpressionDataset):
             new_n_genes=False, 
             subset_genes=None, 
             use_donors=False, 
-            use_labels='guide'):
+            use_labels='guide',
+            testing_labels=None
+            ):
 
         self.download_name = filename
         self.metadata_filename = metadata_filename
@@ -71,6 +75,17 @@ class CropseqDataset(GeneExpressionDataset):
                 labels=labels),
                 gene_names=gene_names,
                 cell_types=np.unique(labels))
+
+        if not testing_labels:
+            self.testing_labels = None
+        elif testing_labels == 'guide':
+            self.testing_labels, _ = arrange_categories(self.guides)
+        elif testing_labels == 'louvain':
+            self.testing_labels, _ = arrage_categories(self.louvain)
+        elif testing_labels == 'gene':
+            self.testing_labels, _ = arrange_categories(self.ko_gene)
+        else:
+            self.testing_labels = None # Perhaps raise an exception.
         
         self.subsample_genes(new_n_genes=new_n_genes, subset_genes=subset_genes)
 
@@ -162,3 +177,42 @@ class CropseqDataset(GeneExpressionDataset):
                 shape=attributes['shape'])
             
         return attributes['barcodes'].astype(str), attributes['gene_names'].astype(str), matrix.transpose()
+
+    def collate_fn(self, batch):
+
+        indexes = np.array(batch)
+        if self.testing_labels is None:
+            if self.dense:
+                X = torch.from_numpy(self.X[indexes])
+            else:
+                X = torch.FloatTensor(self.X[indexes].toarray())
+            if self.x_coord is None or self.y_coord is None:
+                return X, torch.FloatTensor(self.local_means[indexes]), \
+                       torch.FloatTensor(self.local_vars[indexes]), \
+                       torch.LongTensor(self.batch_indices[indexes]), \
+                       torch.LongTensor(self.labels[indexes])
+            else:
+                return X, torch.FloatTensor(self.local_means[indexes]), \
+                       torch.FloatTensor(self.local_vars[indexes]), \
+                       torch.LongTensor(self.batch_indices[indexes]), \
+                       torch.LongTensor(self.labels[indexes]), \
+                       torch.FloatTensor(self.x_coord[indexes]), \
+                       torch.FloatTensor(self.y_coord[indexes])
+        else:
+            if self.dense:
+                X = torch.from_numpy(self.X[indexes])
+            else:
+                X = torch.FloatTensor(self.X[indexes].toarray())
+            if self.x_coord is None or self.y_coord is None:
+                return X, torch.FloatTensor(self.local_means[indexes]), \
+                       torch.FloatTensor(self.local_vars[indexes]), \
+                       torch.LongTensor(self.batch_indices[indexes]), \
+                       torch.LongTensor(self.labels[indexes]), \
+                       torch.LongTensor(self.testing_labels[indexes])
+            else:
+                return X, torch.FloatTensor(self.local_means[indexes]), \
+                       torch.FloatTensor(self.local_vars[indexes]), \
+                       torch.LongTensor(self.batch_indices[indexes]), \
+                       torch.LongTensor(self.labels[indexes]), \
+                       torch.FloatTensor(self.x_coord[indexes]), \
+                       torch.FloatTensor(self.y_coord[indexes])
