@@ -45,6 +45,7 @@ if __name__ == '__main__':
 	parser.add_argument('--model', type=str, metavar='M', help='vaec for classifier, vae for vanilla')
 	parser.add_argument('--label', type=str, metavar='L', help='what to use as label, one of: gene, louvain, guide')
 	parser.add_argument('--n_genes', type=int, metavar='N', help='how many genes to keep, based on variance.')
+	parser.add_argument('--n_latent', type=int, metavar='A', help='dimensionality of the latent space')
 	parser.add_argument('--data', type=str, metavar='D', help='path to the h5 data file')
 	parser.add_argument('--metadata', type=str,metavar='E', help='path to the tab separated metadata file')
 	parser.add_argument('--output', type=str, metavar='O', help='output model name')
@@ -71,9 +72,16 @@ if __name__ == '__main__':
 	print('Using learning rate', lr)
 
 	if args.model == 'vae':
-		vae = VAE(gene_dataset.nb_genes, n_batch=gene_dataset.n_batches * use_batches)
+		vae = VAE(
+			gene_dataset.nb_genes,
+			n_batch=gene_dataset.n_batches * use_batches,
+			n_latent=args.n_latent)
 	else:
-		vae = VAEC(gene_dataset.nb_genes, n_labels=gene_dataset.n_labels, n_batch=gene_dataset.n_batches * use_batches)
+		vae = VAEC(
+			gene_dataset.nb_genes, 
+			n_labels=gene_dataset.n_labels, 
+			n_batch=gene_dataset.n_batches * use_batches,
+			n_latent=args.n_latent)
 
 	infer = SupervisedVariationalInference(
 		vae, 

@@ -49,18 +49,16 @@ if __name__ == '__main__':
 	parser.add_argument('--label', type=str, metavar='L', help='what to use as label, one of: gene, louvain, guide')
 	parser.add_argument('--n_genes', type=int, metavar='N', help='how many genes to keep, based on variance.')
 	parser.add_argument('--data', type=str, metavar='D', help='path to the h5 data file')
-	parser.add_argument('--metadata', type=str,metavar='E', help='path to the tab separated metadata file')
+	parser.add_argument('--metadata', type=str, metavar='E', help='path to the tab separated metadata file')
 	parser.add_argument('--desired_labels', type=str, help='List of desired labels')
 	parser.add_argument('--output', type=str, metavar='O', help='where the output files should go')
 	parser.add_argument('--gpu', help='using a GPU?', action='store_true')
 	args = parser.parse_args()
 
 	# # Create a dataset
-	h5_filename = args.data
-	metadata_filename = args.metadata
 	gene_dataset = CropseqDataset(
-		filename=h5_filename,
-		metadata_filename=metadata_filename,
+		filename=args.data,
+		metadata_filename=args.metadata,
 		use_donors=True,
 		use_labels=args.model_label,
 		new_n_genes=args.n_genes,

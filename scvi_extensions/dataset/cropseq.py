@@ -81,7 +81,7 @@ class CropseqDataset(GeneExpressionDataset):
         elif testing_labels == 'guide':
             self.testing_labels, _ = arrange_categories(self.guides)
         elif testing_labels == 'louvain':
-            self.testing_labels, _ = arrage_categories(self.louvain)
+            self.testing_labels, _ = arrange_categories(self.louvain)
         elif testing_labels == 'gene':
             self.testing_labels, _ = arrange_categories(self.ko_gene)
         else:

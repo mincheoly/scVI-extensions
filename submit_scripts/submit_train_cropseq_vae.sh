@@ -33,30 +33,59 @@ export PATH=$PATH:/ye/yelabstore2/mincheol/cuda-8.0/bin
 
 source activate scvi
 
+# python /netapp/home/mincheol/scVI-extensions/scripts/train_cropseq_vae.py \
+# 	--model vaec \
+# 	--label gene \
+# 	--n_genes 1000 \
+# 	--n_latent 10 \
+# 	--data /netapp/home/mincheol/raw_gene_bc_matrices_h5.h5 \
+# 	--metadata /netapp/home/mincheol/nsnp20.raw.sng.km_vb1_default.norm.meta.txt \
+# 	--output /netapp/home/mincheol/vaec_model_vargenes_kogene
+
+# python /netapp/home/mincheol/scVI-extensions/scripts/train_cropseq_vae.py \
+# 	--model vaec \
+# 	--label guide \
+# 	--n_genes 1000 \
+# 	--n_latent 10 \
+# 	--data /netapp/home/mincheol/raw_gene_bc_matrices_h5.h5 \
+# 	--metadata /netapp/home/mincheol/nsnp20.raw.sng.km_vb1_default.norm.meta.txt \
+# 	--output /netapp/home/mincheol/vaec_model_vargenes_guide
+
+# python /netapp/home/mincheol/scVI-extensions/scripts/train_cropseq_vae.py \
+# 	--model vaec \
+# 	--label louvain \
+# 	--n_genes 1000 \
+# 	--n_latent 10 \
+# 	--data /netapp/home/mincheol/raw_gene_bc_matrices_h5.h5 \
+# 	--metadata /netapp/home/mincheol/nsnp20.raw.sng.km_vb1_default.norm.meta.txt \
+# 	--output /netapp/home/mincheol/vaec_model_vargenes_louvain
+
 python /netapp/home/mincheol/scVI-extensions/scripts/train_cropseq_vae.py \
 	--model vaec \
 	--label gene \
 	--n_genes 1000 \
+	--n_latent 2 \
 	--data /netapp/home/mincheol/raw_gene_bc_matrices_h5.h5 \
 	--metadata /netapp/home/mincheol/nsnp20.raw.sng.km_vb1_default.norm.meta.txt \
-	--output /netapp/home/mincheol/vaec_model_vargenes_kogene
+	--output /netapp/home/mincheol/vaec_model_vargenes_kogene_vis
 
 python /netapp/home/mincheol/scVI-extensions/scripts/train_cropseq_vae.py \
 	--model vaec \
 	--label guide \
 	--n_genes 1000 \
+	--n_latent 2 \
 	--data /netapp/home/mincheol/raw_gene_bc_matrices_h5.h5 \
 	--metadata /netapp/home/mincheol/nsnp20.raw.sng.km_vb1_default.norm.meta.txt \
-	--output /netapp/home/mincheol/vaec_model_vargenes_guide
+	--output /netapp/home/mincheol/vaec_model_vargenes_guide_vis
 
 python /netapp/home/mincheol/scVI-extensions/scripts/train_cropseq_vae.py \
 	--model vaec \
 	--label louvain \
 	--n_genes 1000 \
+	--n_latent 2 \
 	--data /netapp/home/mincheol/raw_gene_bc_matrices_h5.h5 \
 	--metadata /netapp/home/mincheol/nsnp20.raw.sng.km_vb1_default.norm.meta.txt \
-	--output /netapp/home/mincheol/vaec_model_vargenes_louvain
-
+	--output /netapp/home/mincheol/vaec_model_vargenes_louvain_vis
 source deactivate
 
 qstat -j $JOB_ID                                  # This is useful for debugging and usage purposes,
