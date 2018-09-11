@@ -16,6 +16,8 @@ class LabelDataLoaders(DataLoaders):
         """
         super(LabelDataLoaders, self).__init__(gene_dataset, **kwargs)
 
+        self.kwargs['batch_size'] = 512
+
         n = len(self.gene_dataset)
 
         # Get indices for desired labels

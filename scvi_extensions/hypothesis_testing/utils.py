@@ -68,7 +68,7 @@ def compute_p_value(mean, std, val):
     return pval if pval < 0.5 else 1 - pval
 
 
-def breakup_batch(sample_batch, batch_index, labels, desired_labels):
+def breakup_batch(sample_batch, batch_index, labels, desired_labels, constant_size=True):
 
     sample_batch_list, batch_index_list, labels_list = [], [], []
     rarest_label_count = 1e10
@@ -81,11 +81,12 @@ def breakup_batch(sample_batch, batch_index, labels, desired_labels):
         if sample_batch_list[-1].size(0) < rarest_label_count:
             rarest_label_count = sample_batch_list[-1].size(0)
 
-    for idx in range(len(desired_labels)):
-        if sample_batch_list[idx].size(0) == 0:
-            return [], [], []
-        sample_batch_list[idx] = sample_batch_list[idx][:rarest_label_count, :]
-        batch_index_list[idx] = batch_index_list[idx][:rarest_label_count, :]
-        labels_list[idx] = labels_list[idx][:rarest_label_count, :]
+    if constant_size:
+        for idx in range(len(desired_labels)):
+            if sample_batch_list[idx].size(0) == 0:
+                return [], [], []
+            sample_batch_list[idx] = sample_batch_list[idx][:rarest_label_count, :]
+            batch_index_list[idx] = batch_index_list[idx][:rarest_label_count, :]
+            labels_list[idx] = labels_list[idx][:rarest_label_count, :]
 
     return sample_batch_list, batch_index_list, labels_list

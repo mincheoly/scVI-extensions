@@ -14,20 +14,24 @@ from scvi_extensions.dataset.label_data_loader import LabelDataLoaders
 from scvi_extensions.hypothesis_testing.utils import sample_scale, expression_stats, compute_p_value, breakup_batch, get_bayes_factors
 
 
-def batch_differential_expression(vae, data_loader, M_sampling=100, desired_labels=[0, 1], num_batch=200):
+def batch_differential_expression(vae, dataset, desired_labels, M_sampling=100):
     """
     Visualizes the DE process. Each batch is considered a data point, giving a distribution of Bayes factor
     estimates for a total of num_batch points. 
     """
     alt_bayes_factors = []
     null_bayes_factors = []
-    count = 0
 
-    for tensors in data_loader:
+    data_loader = LabelDataLoaders(
+        gene_dataset=dataset, 
+        desired_labels=desired_labels,
+        num_samples=100000)
+
+    for tensors in data_loader['all']:
 
         # Draw some sample data points and sample the px scales
-        sample_batch, _, _, batch_index, labels = tensors
-        sample_batch_list, batch_index_list, labels_list = breakup_batch(sample_batch, batch_index, labels, desired_labels)
+        sample_batch, _, _, batch_index, labels, testing_labels = tensors
+        sample_batch_list, batch_index_list, labels_list = breakup_batch(sample_batch, batch_index, testing_labels, desired_labels)
         px_list = [sample_scale(vae, a, b, c, M_sampling).data.numpy() for a, b, c in zip(sample_batch_list, batch_index_list, labels_list)]
 
         # Generate Bayes factors for alternate hypothesis
@@ -36,20 +40,14 @@ def batch_differential_expression(vae, data_loader, M_sampling=100, desired_labe
 
         # Generate Bayes factors for null hypothesis
         batch_null_bfs = []
-        for px in px_list:
-            shuffled_px = px.reshape(M_sampling, -1, px.shape[-1])[np.random.permutation(M_sampling), :, :].reshape(-1, px.shape[-1])
-            batch_null_bfs.append(np.mean((px >= shuffled_px), 0))
-        batch_null_rates = np.concatenate(batch_null_bfs)
+        combined_px = np.vstack(px_list)
+        batch_null_rates = np.mean(combined_px[np.random.permutation(combined_px.shape[0]), :] >= combined_px[np.random.permutation(combined_px.shape[0]), :], 0)
         null_bayes_factors.append(np.log(batch_null_rates + 1e-8) - np.log(1 - batch_null_rates + 1e-8))
-
-        count += 1
-        if count >= num_batch:
-            break
 
     return np.vstack(alt_bayes_factors), np.vstack(null_bayes_factors)
 
 
-def differential_expression(model, dataset, desired_labels, M_sampling, M_permutation):
+def differential_expression(model, dataset, desired_labels, M_sampling):
     """
     Performs differential expression given a dataset between all desired labels.
     """
@@ -88,5 +86,5 @@ def differential_expression(model, dataset, desired_labels, M_sampling, M_permut
                 direction)),
             columns=['gene', 'gene_index', 'P(H1)', 'bayes_factor', 'bayes_factor_mag' ,'pval', 'direction'])\
         .sort_values('bayes_factor_mag', ascending=False)
-    return results
+    return wl_rates, results
 
