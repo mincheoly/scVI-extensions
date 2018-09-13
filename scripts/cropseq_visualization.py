@@ -40,7 +40,7 @@ if __name__ == '__main__':
 	# Compute louvain
 	sc.tl.louvain(adata)
 	print('Number of louvain clusters:', len(adata.obs['louvain'].value_counts()))
-	adata.write(args.output + '/anndata_with_louvain_{}.h5ad'.format(args.n_neighbors))
+	adata.obs.to_csv(args.output + '/louvain_cluster_labels{}.csv'.format(args.n_neighbors))
 
 	# Compute, show, and save UMAP
 	sc.tl.umap(adata)

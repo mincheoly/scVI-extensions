@@ -32,7 +32,7 @@ export PATH=$PATH:/ye/yelabstore2/mincheol/cuda-8.0/bin
 
 source activate scvi
 python /netapp/home/mincheol/scVI-extensions/scripts/cropseq_visualization.py \
-	--latent_space /ye/yelabstore2/mincheol/scvi_extensions/scvi_latent_space.csv \
+	--latent_space /netapp/home/mincheol/scvi_latent_space.csv \
 	--n_neighbors $n_neighbor \
 	--output /ye/yelabstore2/mincheol/outputs/scvi/scvi_louvain
 source deactivate
