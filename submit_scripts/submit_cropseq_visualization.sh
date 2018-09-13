@@ -10,7 +10,7 @@
 #$ -l arch=linux-x64             
 #$ -l netapp=5G,scratch=5G      
 #$ -l h_rt=20:00:00
-#$ -t 1-7                    
+#$ -t 1-12               
 
 # If you used the -t option above, this same script will be run for each task,
 # but with $SGE_TASK_ID set to a different value each time (1-10 in this case).
@@ -19,7 +19,7 @@
 # while task IDs start at 1, so the first entry in the tasks array variable
 # is simply a placeholder
 
-n_neighbor_array=(15 17 12 10 20 22 25)
+n_neighbor_array=(4 5 6 7 8 9 10 11 13 14 16 18)
 n_neighbor="${n_neighbor_array[$SGE_TASK_ID]}"
 
 export PYTHONPATH=/netapp/home/mincheol/scVI:/netapp/home/mincheol/scVI-extensions

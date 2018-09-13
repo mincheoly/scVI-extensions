@@ -1,10 +1,10 @@
 """
-	tsne_comparison.py
+	cropseq_visualization.py
 	Visualize the latent space of the CROP-seq experiment.
 	Quantify the visualizations.
 """
 
-
+import sys
 import os
 
 import numpy as np
@@ -17,6 +17,24 @@ import pandas as pd
 import seaborn as sns
 import argparse
 import scanpy.api as sc
+
+
+class ForceIOStream:
+    def __init__(self, stream):
+        self.stream = stream
+
+    def write(self, data):
+        self.stream.write(data)
+        self.stream.flush()
+        if not self.stream.isatty():
+            os.fsync(self.stream.fileno())
+
+    def __getattr__(self, attr):
+        return getattr(self.stream, attr)
+
+
+sys.stdout = ForceIOStream(sys.stdout)
+sys.stderr = ForceIOStream(sys.stderr)
 
 
 if __name__ == '__main__':
