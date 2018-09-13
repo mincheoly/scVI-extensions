@@ -19,7 +19,7 @@
 # while task IDs start at 1, so the first entry in the tasks array variable
 # is simply a placeholder
 
-n_neighbor_array=(10 12 15 17 20 22 25)
+n_neighbor_array=(15 17 12 10 20 22 25)
 n_neighbor="${n_neighbor_array[$SGE_TASK_ID]}"
 
 export PYTHONPATH=/netapp/home/mincheol/scVI:/netapp/home/mincheol/scVI-extensions
