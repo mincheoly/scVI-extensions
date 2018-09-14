@@ -69,7 +69,7 @@ if __name__ == '__main__':
 	# Compute, show, and save UMAP
 	sc.tl.umap(adata)
 	sc.pl.umap(adata, color='louvain');
-	plt.savefig(args.output + '/umap_louvain_{}_{}.png'.format(args.n_neighbors))
+	plt.savefig(args.output + '/umap_louvain_{}.png'.format(args.n_neighbors))
 	plt.close()
 
 	# Compute, show, and save tSNE
