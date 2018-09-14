@@ -10,7 +10,7 @@
 #$ -l arch=linux-x64             
 #$ -l netapp=5G,scratch=5G      
 #$ -l h_rt=20:00:00
-#$ -t 1-3            
+##$ -t 1-15            
 
 # If you used the -t option above, this same script will be run for each task,
 # but with $SGE_TASK_ID set to a different value each time (1-10 in this case).
@@ -19,8 +19,8 @@
 # while task IDs start at 1, so the first entry in the tasks array variable
 # is simply a placeholder
 
-n_neighbor_array=(0 15 19 21)
-n_neighbor="${n_neighbor_array[$SGE_TASK_ID]}"
+# n_neighbor_array=(0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15)
+# n_neighbor="${n_neighbor_array[$SGE_TASK_ID]}"
 
 export PYTHONPATH=/netapp/home/mincheol/scVI:/netapp/home/mincheol/scVI-extensions
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/netapp/home/mincheol/anaconda3/lib
@@ -33,8 +33,9 @@ export PATH=$PATH:/ye/yelabstore2/mincheol/cuda-8.0/bin
 source activate scvi
 python /netapp/home/mincheol/scVI-extensions/scripts/cropseq_visualization.py \
 	--latent_space /netapp/home/mincheol/scvi_latent_space.csv \
-	--n_neighbors $n_neighbor \
-	--output /ye/yelabstore2/mincheol/outputs/scvi/scvi_louvain
+	--n_neighbors 14 \
+	--output /ye/yelabstore2/mincheol/outputs/scvi/scvi_louvain/$SGE_TASK_ID \
+	--louvain /ye/yelabstore2/mincheol/outputs/scvi/scvi_louvain/louvain_cluster_labels_14.csv
 source deactivate
 
 qstat -j $JOB_ID                                  # This is useful for debugging and usage purposes,
