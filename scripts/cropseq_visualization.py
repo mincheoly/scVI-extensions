@@ -64,7 +64,7 @@ if __name__ == '__main__':
 
 	else:
 		print('Given previously calculated louvain clusters...')
-		adata.obs['louvain'] = pd.read_csv(args.louvain)['louvain']
+		adata.obs['louvain'] = pd.read_csv(args.louvain)['louvain'].astype('category').values
 
 	# Compute, show, and save UMAP
 	sc.tl.umap(adata)
@@ -78,4 +78,4 @@ if __name__ == '__main__':
 	plt.savefig(args.output + '/tsne_louvain_{}.png'.format(args.n_neighbors))
 	plt.close()
 
-	adata.obs.to_csv(args.output + '/scanpy_metadata_{}.csv'.format(args.n_neighbors))
+	adata.obs.to_csv(args.output + '/scanpy_metadata_{}.csv'.format(args.n_neighbors), index=False)
