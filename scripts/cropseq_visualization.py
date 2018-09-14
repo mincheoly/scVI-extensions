@@ -53,10 +53,10 @@ if __name__ == '__main__':
 
 	print('Using n_neighbors:', args.n_neighbors)
 
-	if args.louvain is None:
+	# Compute neighborhood
+	sc.pp.neighbors(adata, n_neighbors=args.n_neighbors, n_pcs=0, use_rep=None)
 
-		# Compute neighborhood
-		sc.pp.neighbors(adata, n_neighbors=args.n_neighbors, n_pcs=0, use_rep=None)
+	if args.louvain is None:
 
 		# Compute louvain
 		sc.tl.louvain(adata)
