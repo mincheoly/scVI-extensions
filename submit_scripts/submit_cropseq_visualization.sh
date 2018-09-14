@@ -10,7 +10,7 @@
 #$ -l arch=linux-x64             
 #$ -l netapp=5G,scratch=5G      
 #$ -l h_rt=20:00:00
-##$ -t 1-15            
+#$ -t 1-15            
 
 # If you used the -t option above, this same script will be run for each task,
 # but with $SGE_TASK_ID set to a different value each time (1-10 in this case).
