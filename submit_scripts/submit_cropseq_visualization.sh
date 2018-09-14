@@ -34,7 +34,7 @@ source activate scvi
 python /netapp/home/mincheol/scVI-extensions/scripts/cropseq_visualization.py \
 	--latent_space /netapp/home/mincheol/scvi_latent_space.csv \
 	--n_neighbors 14 \
-	--output /ye/yelabstore2/mincheol/outputs/scvi/scvi_louvain/$SGE_TASK_ID \
+	--output /netapp/home/mincheol/temp_outputs/$SGE_TASK_ID \
 	--louvain /ye/yelabstore2/mincheol/outputs/scvi/scvi_louvain/louvain_cluster_labels_14.csv
 source deactivate
 

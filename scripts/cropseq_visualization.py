@@ -78,5 +78,4 @@ if __name__ == '__main__':
 	plt.savefig(args.output + '/tsne_louvain_{}.png'.format(args.n_neighbors))
 	plt.close()
 
-	adata.obs.to_csv(args.output + '/scanpy_metadata_{}.csv'.format(args.n_neighbors), index=False)
-	np.savetxt(args.output + '/umap_coordinates_{}.csv'.format(args.n_neighbors), adata.obsm['X_umap'])
+	adata.write(args.output + '/anndata.h5ad')
