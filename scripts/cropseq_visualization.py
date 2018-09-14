@@ -79,3 +79,4 @@ if __name__ == '__main__':
 	plt.close()
 
 	adata.obs.to_csv(args.output + '/scanpy_metadata_{}.csv'.format(args.n_neighbors), index=False)
+	np.savetxt(args.output + '/umap_coordinates_{}.csv'.format(args.n_neighbors), adata.obsm['X_umap'])
