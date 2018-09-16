@@ -45,7 +45,7 @@ class CropseqDataset(GeneExpressionDataset):
         self.metadata_filename = metadata_filename
         self.save_path = save_path
         self.url = url
-        self.use_donors = use_donors
+        self.batch = batch
         self.use_labels = use_labels
         self.remove_guides = remove_guides
 
