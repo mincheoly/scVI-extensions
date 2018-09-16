@@ -36,38 +36,11 @@ source activate scvi
 python /netapp/home/mincheol/scVI-extensions/scripts/train_cropseq_vae.py \
 	--model vaec \
 	--label gene \
-	--n_genes 5000 \
+	--n_genes 1000 \
 	--n_latent 10 \
 	--data /netapp/home/mincheol/raw_gene_bc_matrices_h5.h5 \
 	--metadata /netapp/home/mincheol/nsnp20.raw.sng.km_vb1_default.norm.meta.txt \
-	--output /netapp/home/mincheol/vaec_model_vargenes5000_kogene
-
-python /netapp/home/mincheol/scVI-extensions/scripts/train_cropseq_vae.py \
-	--model vaec \
-	--label gene \
-	--n_genes 10000 \
-	--n_latent 10 \
-	--data /netapp/home/mincheol/raw_gene_bc_matrices_h5.h5 \
-	--metadata /netapp/home/mincheol/nsnp20.raw.sng.km_vb1_default.norm.meta.txt \
-	--output /netapp/home/mincheol/vaec_model_vargenes10000_kogene
-
-# python /netapp/home/mincheol/scVI-extensions/scripts/train_cropseq_vae.py \
-# 	--model vaec \
-# 	--label guide \
-# 	--n_genes 5000 \
-# 	--n_latent 10 \
-# 	--data /netapp/home/mincheol/raw_gene_bc_matrices_h5.h5 \
-# 	--metadata /netapp/home/mincheol/nsnp20.raw.sng.km_vb1_default.norm.meta.txt \
-# 	--output /netapp/home/mincheol/vaec_model_vargenes5000_guide
-
-# python /netapp/home/mincheol/scVI-extensions/scripts/train_cropseq_vae.py \
-# 	--model vaec \
-# 	--label louvain \
-# 	--n_genes 5000 \
-# 	--n_latent 10 \
-# 	--data /netapp/home/mincheol/raw_gene_bc_matrices_h5.h5 \
-# 	--metadata /netapp/home/mincheol/nsnp20.raw.sng.km_vb1_default.norm.meta.txt \
-# 	--output /netapp/home/mincheol/vaec_model_vargenes5000_louvain
+	--output /netapp/home/mincheol/vaec_model_vargenes_wells_kogene
 
 source deactivate
 

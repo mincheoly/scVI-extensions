@@ -35,9 +35,10 @@ class CropseqDataset(GeneExpressionDataset):
             url=None, 
             new_n_genes=False, 
             subset_genes=None, 
-            use_donors=False, 
+            batch='wells', 
             use_labels='guide',
-            testing_labels=None
+            testing_labels=None,
+            remove_guides=True
             ):
 
         self.download_name = filename
@@ -46,8 +47,9 @@ class CropseqDataset(GeneExpressionDataset):
         self.url = url
         self.use_donors = use_donors
         self.use_labels = use_labels
+        self.remove_guides = remove_guides
 
-        data, gene_names, guides, donor_batches, louvain, ko_gene = self.preprocess()
+        data, gene_names, guides, donor_batches, louvain, ko_gene, wells = self.preprocess()
 
         self.guide_lookup = np.unique(guides)
         self.ko_gene_lookup = np.unique(ko_gene)
@@ -55,6 +57,7 @@ class CropseqDataset(GeneExpressionDataset):
         self.louvain = louvain
         self.ko_gene = ko_gene
         self.donor_batches = donor_batches
+        self.wells = wells
 
         if not self.use_labels:
             labels = None
@@ -67,11 +70,10 @@ class CropseqDataset(GeneExpressionDataset):
         else:
             labels = None
 
-        
         super(CropseqDataset, self).__init__(
             *GeneExpressionDataset.get_attributes_from_matrix(
                 data, 
-                batch_indices=donor_batches if self.use_donors else 0, 
+                batch_indices=self.donor_batches if self.batch == 'donor' else self.wells, 
                 labels=labels),
                 gene_names=gene_names,
                 cell_types=np.unique(labels))
@@ -95,15 +97,20 @@ class CropseqDataset(GeneExpressionDataset):
 
         barcodes, gene_names, matrix = self.read_h5_file()
 
-        is_gene = ~pd.Series(gene_names, dtype=str).str.contains('guide').values
+        if self.remove_guides:
 
-        # Remove guides from the gene list
-        gene_names = gene_names[is_gene]
-        data = matrix[:, is_gene]
+            is_gene = ~pd.Series(gene_names, dtype=str).str.contains('guide').values
+
+            # Remove guides from the gene list
+            gene_names = gene_names[is_gene]
+            data = matrix[:, is_gene]
+        else:
+
+            data = matrix
 
         # Get labels and wells from metadata
         metadata = pd.read_csv(self.metadata_filename, sep='\t')
-        keep_cell_indices, guides, donor_batches, louvain, ko_gene = self.process_metadata(metadata, data, barcodes)
+        keep_cell_indices, guides, donor_batches, louvain, ko_gene, wells = self.process_metadata(metadata, data, barcodes)
 
         print('Number of cells kept after filtering with metadata:', len(keep_cell_indices))
 
@@ -117,10 +124,11 @@ class CropseqDataset(GeneExpressionDataset):
         donor_batches = donor_batches[has_umis]
         louvain = louvain[has_umis]
         ko_gene = ko_gene[has_umis]
+        wells = wells[has_umis]
         print('Number of cells kept after removing all zero cells:', has_umis.sum())
 
         print("Finished preprocessing CROP-seq dataset")
-        return data, gene_names, guides, donor_batches, louvain, ko_gene
+        return data, gene_names, guides, donor_batches, louvain, ko_gene, wells
 
 
     def process_metadata(self, metadata, data, barcodes):
@@ -146,6 +154,9 @@ class CropseqDataset(GeneExpressionDataset):
         # Extract the gene being knocked out
         ko_gene = keep_cells_metadata['guide_cov'].str.extract(r'^([^.]*).*').values.reshape(-1, 1)
 
+        # Extract the well
+        wells = keep_cells_metadata['well_cov'].values.reshape(-1, 1)
+
         # Assign codes to each donor
         donor_labels = keep_cells_metadata['donor_cov'].values
         unique_donors = np.unique(donor_labels)
@@ -155,7 +166,7 @@ class CropseqDataset(GeneExpressionDataset):
             donor_batches[i] = self.donor_lookup[donor_labels[i]]
         donor_batches = donor_batches.reshape(-1, 1)
 
-        return keep_cells_metadata['row_number'].values, guides, donor_batches, louvain, ko_gene
+        return keep_cells_metadata['row_number'].values, guides, donor_batches, louvain, ko_gene, wells
 
 
     def read_h5_file(self, key=None):

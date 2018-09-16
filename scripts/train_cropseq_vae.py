@@ -57,7 +57,7 @@ if __name__ == '__main__':
 	gene_dataset = CropseqDataset(
 		filename=h5_filename,
 		metadata_filename=metadata_filename,
-		use_donors=True,
+		batch='wells',
 		use_labels=args.label,
 		new_n_genes=args.n_genes,
 		save_path='')
