@@ -125,7 +125,7 @@ if __name__ == '__main__':
 	plt.savefig(args.output + '/umap_wells_{}.png'.format(args.n_neighbors))
 	plt.close()
 	for marker_gene in marker_genes:
-		for norm in ['_raw', '_indicator', '_log']
+		for norm in ['_raw', '_indicator', '_log']:
 			sc.pl.umap(adata, color=marker_gene + norm)
 			plt.savefig(args.output + '/umap_feature_{}_{}.png'.format(marker_gene + norm, args.n_neighbors))
 			plt.close()
@@ -139,7 +139,7 @@ if __name__ == '__main__':
 	plt.savefig(args.output + '/tsne_wells_{}.png'.format(args.n_neighbors))
 	plt.close()
 	for marker_gene in marker_genes:
-		for norm in ['_raw', '_indicator', '_log']
+		for norm in ['_raw', '_indicator', '_log']:
 			sc.pl.tsne(adata, color=marker_gene + norm)
 			plt.savefig(args.output + '/tsne_feature_{}_{}.png'.format(marker_gene + norm, args.n_neighbors))
 			plt.close()
