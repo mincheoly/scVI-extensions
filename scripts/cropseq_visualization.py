@@ -80,7 +80,7 @@ if __name__ == '__main__':
 	model = torch.load(args.model_path, map_location=lambda storage, loc: storage)
 
 	# Create a data_loader
-	data_loader = sdl.SupervisedTrainTestDataLoaders(gene_dataset)
+	data_loader = SupervisedTrainTestDataLoaders(gene_dataset)
 
 	# Sample the latent space
 	latent, batch_indices, labels = get_cropseq_latent(model, data_loader['sequential'])
