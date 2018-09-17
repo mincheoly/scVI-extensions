@@ -1,7 +1,6 @@
 """
 	cropseq_visualization.py
-	Visualize the latent space of the CROP-seq experiment.
-	Quantify the visualizations.
+	Visualize the latent space of the CROP-seq experiment using scanpy.
 """
 
 import sys
@@ -17,6 +16,9 @@ import pandas as pd
 import seaborn as sns
 import argparse
 import scanpy.api as sc
+
+from scvi_extensions.dataset.supervised_data_loader import SupervisedTrainTestDataLoaders
+from scvi_extensions.dataset.cropseq import CropseqDataset
 
 
 class ForceIOStream:
@@ -37,34 +39,62 @@ sys.stdout = ForceIOStream(sys.stdout)
 sys.stderr = ForceIOStream(sys.stderr)
 
 
+def get_cropseq_latent(vae, data_loader):
+
+    latent = []
+    batch_indices = []
+    labels = []
+    for tensors in data_loader:
+        sample_batch, local_l_mean, local_l_var, batch_index, label = tensors
+        latent += [vae.sample_from_posterior_z(sample_batch, y=label)]
+        batch_indices += [batch_index]
+        labels += [label]
+        break
+    return np.array(torch.cat(latent)), np.array(torch.cat(batch_indices)), np.array(torch.cat(labels)).ravel()
+
+
 if __name__ == '__main__':
 
 	# Argparse
 	parser = argparse.ArgumentParser(description='Clustering and visualizing latent space of scVI.')
-	parser.add_argument('--latent_space', type=str, help='path to the csv latent space file')
 	parser.add_argument('--n_neighbors', type=int, default=14, help='n_neighbors for SCANPY neighborhood calcuation')
+	parser.add_argument('--model_path', type=str, metavar='M', help='path to a trained torch model')
+	parser.add_argument('--model_label', type=str, help='the labels with which the model was trained on, one of: gene, louvain, or guide')
+	parser.add_argument('--n_genes', type=int, metavar='N', help='how many genes to keep, based on variance.')
+	parser.add_argument('--data', type=str, metavar='D', help='path to the h5 data file')
+	parser.add_argument('--metadata', type=str, metavar='E', help='path to the tab separated metadata file')
 	parser.add_argument('--output', type=str, metavar='O', help='where the output files should go')
-	parser.add_argument('--louvain', type=str, default=None, help='louvain cluster assignments')
-
 	args = parser.parse_args()
 
-	# Load the CSV file into AnnData
-	adata = sc.read_csv(args.latent_space)
+	# Create a gene dataset
+	gene_dataset = CropseqDataset(
+		filename=args.data,
+		metadata_filename=args.metadata,
+		batch='wells',
+		use_labels=args.model_label,
+		new_n_genes=args.n_genes,
+		save_path='')
+
+	# Read the model
+	model = torch.load(args.model_path, map_location=lambda storage, loc: storage)
+
+	# Create a data_loader
+	data_loader = sdl.SupervisedTrainTestDataLoaders(gene_dataset)
+
+	# Sample the latent space
+	latent, batch_indices, labels = get_cropseq_latent(model, data_loader['sequential'])
+
+	# Load the numpy array file into AnnData
+	adata = sc.read_csv(latent)
 
 	print('Using n_neighbors:', args.n_neighbors)
 
 	# Compute neighborhood
 	sc.pp.neighbors(adata, n_neighbors=args.n_neighbors, n_pcs=0, use_rep=None)
 
-	if args.louvain is None:
-
-		# Compute louvain
-		sc.tl.louvain(adata)
-		print('Number of louvain clusters:', len(adata.obs['louvain'].value_counts()))
-
-	else:
-		print('Given previously calculated louvain clusters...')
-		adata.obs['louvain'] = pd.read_csv(args.louvain)['louvain'].astype('category').values
+	# Compute louvain
+	sc.tl.louvain(adata)
+	print('Number of louvain clusters:', len(adata.obs['louvain'].value_counts()))
 
 	# Compute, show, and save UMAP
 	sc.tl.umap(adata)
@@ -78,4 +108,4 @@ if __name__ == '__main__':
 	plt.savefig(args.output + '/tsne_louvain_{}.png'.format(args.n_neighbors))
 	plt.close()
 
-	adata.write(args.output + '/anndata.h5ad')
+	adata.write(args.output + '/scvi_vis_{}.h5ad'.format(args.n_neighbors))

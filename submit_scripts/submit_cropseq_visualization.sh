@@ -10,7 +10,7 @@
 #$ -l arch=linux-x64             
 #$ -l netapp=5G,scratch=5G      
 #$ -l h_rt=20:00:00
-#$ -t 1-15            
+##$ -t 1-15            
 
 # If you used the -t option above, this same script will be run for each task,
 # but with $SGE_TASK_ID set to a different value each time (1-10 in this case).
@@ -32,10 +32,13 @@ export PATH=$PATH:/ye/yelabstore2/mincheol/cuda-8.0/bin
 
 source activate scvi
 python /netapp/home/mincheol/scVI-extensions/scripts/cropseq_visualization.py \
-	--latent_space /netapp/home/mincheol/scvi_latent_space.csv \
-	--n_neighbors 14 \
-	--output /netapp/home/mincheol/temp_outputs/$SGE_TASK_ID \
-	--louvain /ye/yelabstore2/mincheol/outputs/scvi/scvi_louvain/louvain_cluster_labels_14.csv
+	--n_neighbors=15 \
+	--model_path /netapp/home/mincheol/vaec_model_vargenes_wells_kogene.model \
+	--model_label gene \
+	--n_genes 1000 \
+	--data /netapp/home/mincheol/raw_gene_bc_matrices_h5.h5 \
+	--metadata /netapp/home/mincheol/nsnp20.raw.sng.km_vb1_default.norm.meta.txt \
+	--output /netapp/home/mincheol/scvi_output/vis
 source deactivate
 
 qstat -j $JOB_ID                                  # This is useful for debugging and usage purposes,
