@@ -6,6 +6,7 @@
 import sys
 import os
 
+import torch
 import numpy as np
 import itertools
 from sklearn.manifold import TSNE
@@ -16,6 +17,7 @@ import pandas as pd
 import seaborn as sns
 import argparse
 import scanpy.api as sc
+from anndata import AnnData
 
 from scvi_extensions.dataset.supervised_data_loader import SupervisedTrainTestDataLoaders
 from scvi_extensions.dataset.cropseq import CropseqDataset
@@ -84,7 +86,7 @@ if __name__ == '__main__':
 	latent, batch_indices, labels = get_cropseq_latent(model, data_loader['sequential'])
 
 	# Load the numpy array file into AnnData
-	adata = sc.read_csv(latent)
+	adata = AnnData(latent)
 
 	print('Using n_neighbors:', args.n_neighbors)
 
