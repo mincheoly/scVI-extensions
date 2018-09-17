@@ -25,6 +25,8 @@
 export PYTHONPATH=/netapp/home/mincheol/scVI:/netapp/home/mincheol/scVI-extensions
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/netapp/home/mincheol/anaconda3/lib
 
+export CUDA_VISIBLE_DEVICES=""
+
 source activate scvi
 python /netapp/home/mincheol/scVI-extensions/scripts/cropseq_visualization.py \
 	--n_neighbors=15 \
