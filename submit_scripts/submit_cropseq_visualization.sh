@@ -38,6 +38,7 @@ python /netapp/home/mincheol/scVI-extensions/scripts/cropseq_visualization.py \
 	--n_genes 1000 \
 	--data /netapp/home/mincheol/raw_gene_bc_matrices_h5.h5 \
 	--metadata /netapp/home/mincheol/nsnp20.raw.sng.km_vb1_default.norm.meta.txt \
+	--marker_genes "['IL2RA', 'IL27RA', 'CCR2', 'IL32', 'IL23A','SELL', 'GNLY', 'GZMB', 'IL4R', 'CCR7', 'NKG7', 'IFNG', 'TNFRSF18']" \
 	--output /netapp/home/mincheol/scvi_output/vis
 source deactivate
 
