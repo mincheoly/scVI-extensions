@@ -51,7 +51,7 @@ def get_cropseq_latent(vae, data_loader):
         latent += [vae.sample_from_posterior_z(sample_batch, y=label)]
         batch_indices += [batch_index]
         labels += [label]
-    return np.array(torch.cat(latent)), np.array(torch.cat(batch_indices)), np.array(torch.cat(labels)).ravel()
+    return np.array(torch.cat(latent).detach()), np.array(torch.cat(batch_indices).detach()), np.array(torch.cat(labels).detach()).ravel()
 
 
 if __name__ == '__main__':
