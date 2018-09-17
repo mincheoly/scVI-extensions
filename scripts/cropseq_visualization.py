@@ -49,7 +49,6 @@ def get_cropseq_latent(vae, data_loader):
         latent += [vae.sample_from_posterior_z(sample_batch, y=label)]
         batch_indices += [batch_index]
         labels += [label]
-        break
     return np.array(torch.cat(latent)), np.array(torch.cat(batch_indices)), np.array(torch.cat(labels)).ravel()
 
 
