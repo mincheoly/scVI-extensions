@@ -64,7 +64,7 @@ if __name__ == '__main__':
 
 	print('loaded dataset!')
 
-	n_epochs=500
+	n_epochs=20
 	lr=1e-4
 	use_batches=True
 	use_cuda=True
@@ -77,7 +77,7 @@ if __name__ == '__main__':
 			n_batch=gene_dataset.n_batches * use_batches,
 			n_latent=args.n_latent)
 	else:
-		vae = VAEC(
+		vae = CVAE(
 			gene_dataset.nb_genes, 
 			n_labels=gene_dataset.n_labels, 
 			n_batch=gene_dataset.n_batches * use_batches,

@@ -1,7 +1,7 @@
 import torch
 from torch.nn import functional as F
 
-from scvi.inference.variational_inference import SemiSupervisedVariationalInference
+from scvi.inference.variational_inference import SemiSupervisedVariationalInference, VariationalInference
 from scvi_extensions.dataset.supervised_data_loader import SupervisedTrainTestDataLoaders
 
 class SupervisedVariationalInference(SemiSupervisedVariationalInference):
@@ -21,6 +21,8 @@ class SupervisedVariationalInference(SemiSupervisedVariationalInference):
         >>> infer.train(n_epochs=20, lr=1e-3)
     """
 
+    default_metrics_to_monitor = VariationalInference.default_metrics_to_monitor
+
     def __init__(self, model, gene_dataset, classification_ratio=100, train_size=0.9, **kwargs):
         super(SupervisedVariationalInference, self).__init__(model, gene_dataset, train_size=train_size, **kwargs)
         self.data_loaders = SupervisedTrainTestDataLoaders(gene_dataset, use_cuda=self.use_cuda, train_size=train_size)
@@ -30,6 +32,4 @@ class SupervisedVariationalInference(SemiSupervisedVariationalInference):
         sample_batch, local_l_mean, local_l_var, batch_index, y = tensors
         reconst_loss, kl_divergence = self.model(sample_batch, local_l_mean, local_l_var, batch_index, y)
         loss = torch.mean(reconst_loss + self.kl_weight * kl_divergence)
-        classification_loss = F.cross_entropy(self.model.classify(sample_batch), y.view(-1))
-        loss += classification_loss * self.classification_ratio
         return loss

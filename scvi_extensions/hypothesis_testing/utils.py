@@ -36,7 +36,7 @@ def sample_scale(vae, sample_batch, batch_index, labels, M_sampling):
         ).squeeze()).cpu()
 
 
-def expression_stats(vae, data_loader, M_sampling=100):
+def expression_stats(vae, data_loader, M_sampling=100, testing=True):
     """
     Output average over statistics in a symmetric way (a against b)
     forget the sets if permutation is True
@@ -51,9 +51,13 @@ def expression_stats(vae, data_loader, M_sampling=100):
     px_scales = []
     all_labels = []
     cell_count = 0
-    for sample_batch, _, _, batch_index, labels , testing_labels in data_loader:
+    for tensors in data_loader:
+        if testing:
+            sample_batch, _, _, batch_index, labels , testing_labels = tensors
+        else:
+            sample_batch, _, _, batch_index, labels = tensors
         px_scales += [sample_scale(vae, sample_batch, batch_index, labels, M_sampling)]
-        all_labels += [testing_labels.repeat(1, M_sampling).view(-1, 1).cpu()]
+        all_labels += [(testing_labels if testing else labels).repeat(1, M_sampling).view(-1, 1).cpu()]
     px_scale = torch.cat(px_scales).data.numpy()
     all_labels = torch.cat(all_labels).data.numpy().reshape(-1)
     

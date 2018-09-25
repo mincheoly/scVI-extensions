@@ -47,20 +47,21 @@ def batch_differential_expression(vae, dataset, desired_labels, M_sampling=100):
     return np.vstack(alt_bayes_factors), np.vstack(null_bayes_factors)
 
 
-def differential_expression(model, dataset, desired_labels, M_sampling):
+def differential_expression(model, dataset, desired_labels, M_sampling, testing=True):
     """
     Performs differential expression given a dataset between all desired labels.
     """
     data_loader = LabelDataLoaders(
         gene_dataset=dataset, 
         desired_labels=desired_labels,
-        num_samples=10000)
+        num_samples=5000)
 
     print('Sampling for differential expression...')
     px_scale, all_labels = expression_stats(
         model, 
         data_loader['all'], 
-        M_sampling=M_sampling)
+        M_sampling=M_sampling,
+        testing=testing)
     print('Done sampling for differential expression...')
 
     # Generate the null distribution

@@ -5,6 +5,7 @@ import pandas as pd
 import h5py
 import torch
 import scipy.sparse as sp_sparse
+from sklearn.preprocessing import StandardScaler
 
 
 class CropseqDataset(GeneExpressionDataset):
@@ -188,6 +189,26 @@ class CropseqDataset(GeneExpressionDataset):
                 shape=attributes['shape'])
             
         return attributes['barcodes'].astype(str), attributes['gene_names'].astype(str), matrix.transpose()
+
+
+    def subsample_genes(self, new_n_genes, subset_genes):
+        """ Combines the n_genes as well as the genes I'd like to add. """
+
+        if new_n_genes is False and subset_genes is None:
+            return
+
+        n_cells, n_genes = self.X.shape
+
+        print("Downsampling from %i to %i genes" % (n_genes, new_n_genes))
+        std_scaler = StandardScaler(with_mean=False)
+        std_scaler.fit(self.X.astype(np.float64))
+        vargenes = np.argsort(std_scaler.var_)[::-1][:new_n_genes]
+
+        subset_gene_indices = np.array([np.where(self.gene_names == gene)[0][0] for gene in subset_genes])
+        subset_genes = np.concatenate([subset_gene_indices, vargenes]) # Add in the genes I want to
+
+        self.X = self.X[:, subset_genes]
+        self.update_genes(subset_genes)
 
     def collate_fn(self, batch):
 
